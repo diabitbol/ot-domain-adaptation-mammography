@@ -1,7 +1,10 @@
 *.csv
 CMMD2022/
 miniddsm2/
+miniddsm/
 VinDr/
-.ipynb_checkpoints/
 VinDr_transforme/
 VinDr_structure/
+VinDr_restructure/
+.ipynb_checkpoints/
+
