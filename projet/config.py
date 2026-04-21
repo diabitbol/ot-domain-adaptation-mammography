@@ -1,9 +1,39 @@
 # ==============================================================================
+# CONFIGURATION : importation des donnees depuis le S3
+# ==============================================================================
+
+import os
+
+
+# --- Chemin dossier ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# --- Chemins de données ---
+LOCAL_DATA_PATH = os.path.join(BASE_DIR, "data")
+# Le dossier source DDSM sur le S3
+BUCKET_S3_DDSM = "s3/lucasvital/stat_app/nouveau_dataset_mini_ddsm_700_700/"
+# Le dossier de destination sur le disque local de l'instance Onyxia
+DDSM_PATH_LOCAL = os.path.join(LOCAL_DATA_PATH, "nouveau_dataset_mini_ddsm_700_700")
+
+# Le dossier source VinDr sur le S3
+BUCKET_S3_VINDR_NORMAL = "s3/lucasvital/stat_app/0-normal/"
+BUCKET_S3_VINDR_CANCER_BENIGN = "s3/lucasvital/stat_app/1-cancer_benign/"
+# Le dossier de destination sur le disque local de l'instance Onyxia
+CHEMIN_DATA_VINDR = os.path.join(LOCAL_DATA_PATH, "dataset_vindr")
+VINDR_PATH_LOCAL_NORMAL = os.path.join(CHEMIN_DATA_VINDR, "0-normal")
+VINDR_PATH_LOCAL_CANCER_BENIGN = os.path.join(CHEMIN_DATA_VINDR, "1-cancer_benign")
+
+
+# ==============================================================================
 # CONFIGURATION : Génération des données et Entraînement
 # ==============================================================================
 
 # --- Sauvegarde et Chemins ---
-NOM_MODELE_SAUVEGARDE = "new2_best_model_700"
+NOM_MODELE_SAUVEGARDE = "model1_700"
+RACINE_MODELE_LOCAL = "/home/onyxia/work/ot-domain-adaptation-mammography/projet/model"
+RACINE_MODELE_S3 = "s3/lucasvital/stat_app/"
+CHEMIN_MODELE_LOCAL = os.path.join(RACINE_MODELE_LOCAL, NOM_MODELE_SAUVEGARDE + ".pth")
+CHEMIN_MODELE_S3 = os.path.join(RACINE_MODELE_S3, NOM_MODELE_SAUVEGARDE + ".pth")
 # NOTE : Penser à vérifier le chemin S3 dans le script d'entraînement
 
 # --- Paramètres des images ---
