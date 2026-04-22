@@ -30,10 +30,17 @@ VINDR_PATH_LOCAL_CANCER_BENIGN = os.path.join(CHEMIN_DATA_VINDR, "1-cancer_benig
 
 # --- Sauvegarde et Chemins ---
 NOM_MODELE_SAUVEGARDE = "model1_700"
-RACINE_MODELE_LOCAL = "/home/onyxia/work/ot-domain-adaptation-mammography/projet/model"
+NOM_MODELE_SAUVEGARDE_CLAHE = NOM_MODELE_SAUVEGARDE + "clahe"
+NOM_MODELE_SAUVEGARDE_EWC = NOM_MODELE_SAUVEGARDE + "EWC"
+RACINE_MODELE_LOCAL = os.path.join(BASE_DIR, "model")
 RACINE_MODELE_S3 = "s3/lucasvital/stat_app/"
 CHEMIN_MODELE_LOCAL = os.path.join(RACINE_MODELE_LOCAL, NOM_MODELE_SAUVEGARDE + ".pth")
+CHEMIN_MODELE_LOCAL_CLAHE = os.path.join(RACINE_MODELE_LOCAL, NOM_MODELE_SAUVEGARDE_CLAHE + ".pth")
+CHEMIN_MODELE_LOCAL_EWC = os.path.join(RACINE_MODELE_LOCAL, NOM_MODELE_SAUVEGARDE_EWC + ".pth")
 CHEMIN_MODELE_S3 = os.path.join(RACINE_MODELE_S3, NOM_MODELE_SAUVEGARDE + ".pth")
+CHEMIN_MODELE_S3_CLAHE = os.path.join(RACINE_MODELE_S3, NOM_MODELE_SAUVEGARDE_CLAHE + ".pth")
+CHEMIN_MODELE_S3_EWC = os.path.join(RACINE_MODELE_S3, NOM_MODELE_SAUVEGARDE_EWC + ".pth")
+
 # NOTE : Penser à vérifier le chemin S3 dans le script d'entraînement
 
 # --- Paramètres des images ---
@@ -48,10 +55,14 @@ BRIGHTNESS = 0.1
 DEGREES = 15
 
 # --- Normalisation ---
-# 0: Pas de normalisation | 1: Par image | 2: Sur le dataset global
-CHOIX_NORMALISATION_IMAGE = 0
+# 0: Pas de normalisation | 1: Par image | 2: Sur le dataset global # à détailler...
+CHOIX_FONCTION = 0
 # Seuil pour exclure le fond noir de la normalisation
 LIMITE_BASSE = 0.05
+# Choix de normaliser les images :
+#  ie transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]) 
+# pour TEST_SIZE = 1
+NORMALIZE = 1
 
 # --- Division du Dataset (Splitting) ---
 NUMERO_RANDOM = 42

@@ -6,3 +6,4 @@ scikit-learn
 opencv-python
 kagglehub
 pandas
+opencv-python-headless
