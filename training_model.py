@@ -21,6 +21,7 @@ from torch.cuda.amp import GradScaler, autocast
 from sklearn.metrics import roc_curve, auc
 from sklearn.preprocessing import label_binarize
 import gc
+import os
 
 
 def data_generation(
@@ -185,7 +186,8 @@ def configurate_model(
     factor,
     weight_decay,
     patience,
-    threshold
+    threshold,
+    lr
 ):
     model = models.resnet18(weights=ResNet18_Weights.DEFAULT)
     model.fc = nn.Sequential(
@@ -198,3 +200,113 @@ def configurate_model(
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=factor, patience=patience, threshold=threshold)
     return model, criterion, optimizer, scheduler
+
+
+def train_model(model, train_loader, val_loader, criterion, optimizer, device):
+    model.train()
+    running_loss = 0.0
+    scaler = GradScaler() # Le scaler reste identique
+    
+    for inputs, labels in tqdm(train_loader, desc="Entraînement"):
+        inputs = inputs.to(device)
+        labels = labels.to(device)
+
+        optimizer.zero_grad()
+    
+        with autocast(): 
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+        
+        # 4. On modifie la phase de rétropropagation
+        scaler.scale(loss).backward()  # On "scale" la loss pour pas qu'elle soit trop petite
+        scaler.step(optimizer)         # L'optimizer fait son pas
+        scaler.update()                # On met à jour le scaler pour le prochain tour
+        
+        running_loss += loss.item() * inputs.size(0)
+    
+    epoch_loss = running_loss / len(train_loader.dataset)
+    return epoch_loss
+
+
+def validate_model(model, val_loader, criterion, device):
+    model.eval()
+    running_loss = 0.0
+    corrects = 0
+    
+    with torch.no_grad():
+        for inputs, labels in tqdm(val_loader, desc="Validation"):
+            inputs = inputs.to(device)
+            labels = labels.to(device)
+            
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            
+            running_loss += loss.item() * inputs.size(0)
+            _, preds = torch.max(outputs, 1)
+            corrects += torch.sum(preds == labels.data)
+    
+    epoch_loss = running_loss / len(val_loader.dataset)
+    epoch_acc = corrects.double() / len(val_loader.dataset)
+    
+    return epoch_loss, epoch_acc
+
+
+def training_loop(
+    num_epochs,
+    model,
+    train_loader,
+    val_loader,
+    criterion,
+    optimizer,
+    device,
+    scheduler,
+    model_name,
+    patience_limite
+):
+    best_acc = 0.0 #initialisation accuracy
+    patience_compteur = 0 #initialisation patience
+    best_loss=10 #initialisation Loss
+    
+    for epoch in range(num_epochs):
+        print(f"\n{'='*50}")
+        print(f"Époque {epoch+1}/{num_epochs}")
+        print(f"{'='*50}")
+        
+        # Entraînement
+        train_loss = train_model(model, train_loader, val_loader, criterion, optimizer, device)
+        print(f"Loss d'entraînement: {train_loss:.4f}")
+        
+        # Validation
+        val_loss, val_acc = validate_model(model, val_loader, criterion, device)
+        print(f"Loss de validation: {val_loss:.4f} | Accuracy: {val_acc:.4f}")
+        
+        # Scheduler
+        scheduler.step(val_loss)
+        current_lr = optimizer.param_groups[0]['lr']
+        print(f"Learning rate: {current_lr}")
+        
+        # Sauvegarde du meilleur modèle AValidation Loss
+        if val_loss < best_loss:
+            best_loss = val_loss
+            torch.save(model.state_dict(), "/home/onyxia/"+model_name+"loss.pth")
+            # Sauvegarder sur S3
+            os.system("mc cp home/onyxia/new2_best_model_672_general_standard_final_loss.pth s3/joh/")
+            patience_compteur = 0
+        else:
+            patience_compteur += 1
+            print(f"Patience: {patience_compteur}/{patience_limite}")
+    
+        # Sauvegarde du meilleur modèle AUC
+        if val_acc > best_acc:
+            best_acc = val_acc
+            torch.save(model.state_dict(), "/home/onyxia/"+model_name+"acc.pth")
+            # Sauvegarder sur S3
+            os.system("mc cp home/onyxia/new2_best_model_672_general_standard_final_loss.pth s3/joh/")
+            print(f"Nouveau meilleur modèle sauvegardé (acc: {best_acc:.4f})")
+            
+        if patience_compteur >= patience_limite:
+            print("\n Early stopping déclenché")
+            break
+        
+    return "Entraînement terminé"
+
