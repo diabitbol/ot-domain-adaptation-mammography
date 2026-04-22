@@ -20,15 +20,20 @@ from collections import Counter
 
 def evaluate_model(
     path,
-    test_loader
+    test_loader,
+    model,
+    device
 ):
-    model.load_state_dict(torch.load(path))
+    model.load_state_dict(torch.load(
+        path,
+        weights_only=True
+    ))
     model.eval()
     all_predictions = []
     all_labels= []
     all_probabilities = []
     with torch.no_grad():
-        for inputs, labels in tqdm(choose_data):
+        for inputs, labels in tqdm(test_loader):
             inputs = inputs.to(device)
             labels = labels.to(device)
             outputs = model(inputs)
@@ -45,7 +50,7 @@ def evaluate_model(
     return predictions_np, labels_np, probabilities_np, accuracy
 
 
-def confusion_matrix(
+def conf_matrix(
     class_names,
     labels,
     predictions
@@ -81,6 +86,9 @@ def evaluation_report(
     predictions_np, 
     target_names
 ):
-    report = classification_report(labels_np, predictions_np, target_names=class_names)
+    report = classification_report(
+        labels_np,
+        predictions_np,
+        target_names = target_names)
     print("Classification report:")
     print(report)
