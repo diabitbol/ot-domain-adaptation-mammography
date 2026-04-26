@@ -1,0 +1,14 @@
+# Ignorer les dossiers de données (peu importe où ils sont)
+data/*
+
+# Ignorer les modèles
+model/*
+
+# Ignorer les checkpoints de modèles (trop lourds pour Git)
+*.pth
+*.pt
+
+# Ignorer les fichiers temporaires de Jupyter
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
