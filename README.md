@@ -160,16 +160,16 @@ AUC ≈ 0.53
 
 We then explore a one-dimensional optimal transport transformation between the pixel-intensity distributions of the two datasets.
 
-For a target-domain pixel intensity `x`, the transformation is:
+For a target-domain pixel intensity $x$, the transformation is:
 
-```text
-T(x) = Fs^(-1)(Ft(x))
-```
+$$
+T(x) = F_s^{-1}(F_t(x))
+$$
 
 where:
 
-- `Ft` is the cumulative distribution function of the target domain;
-- `Fs^(-1)` is the inverse cumulative distribution function of the source domain.
+- $F_t$ is the cumulative distribution function of the target domain;
+- $F_s^{-1}$ is the inverse cumulative distribution function of the source domain.
 
 In practice, this corresponds to **quantile matching**.
 
@@ -193,25 +193,30 @@ Rather than transforming the images, EWC directly adapts the parameters of the n
 
 Starting from the model trained on Mini-DDSM, the objective becomes:
 
-```text
-L(theta) =
-L_VinDr(theta)
-+ (lambda / 2) * sum_i F_i (theta_i - theta_i*)^2
-```
+$$
+\mathcal{L}(\theta)
+=
+\mathcal{L}_{\mathrm{VinDr}}(\theta)
++
+\frac{\lambda}{2}
+\sum_i
+F_i
+(\theta_i - \theta_i^*)^2
+$$
 
 where:
 
-- `theta_i*` are the parameters learned on Mini-DDSM;
-- `F_i` represents the estimated importance of parameter `i`, obtained from the diagonal of the Fisher information matrix;
-- `lambda` controls the strength of the constraint.
+- $\theta_i^*$ are the parameters learned on Mini-DDSM;
+- $F_i$ represents the estimated importance of parameter $i$, obtained from the diagonal of the Fisher information matrix;
+- $\lambda$ controls the strength of the constraint.
 
 A large value of `lambda` strongly preserves the source-domain model, while a small value allows more adaptation to VinDr-Mammo.
 
 We tested several values of:
 
-```text
-lambda in [10^2, 10^9]
-```
+$$
+\lambda \in [10^2, 10^9]
+$$
 
 with three epochs of adaptation.
 
@@ -219,9 +224,9 @@ with three epochs of adaptation.
 
 A value around:
 
-```text
-lambda ≈ 5 x 10^6
-```
+$$
+\lambda \approx 5 \times 10^6
+$$
 
 provides an interesting compromise between source-domain retention and target-domain adaptation.
 
