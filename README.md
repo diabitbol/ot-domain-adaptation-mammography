@@ -193,16 +193,13 @@ Rather than transforming the images, EWC directly adapts the parameters of the n
 
 Starting from the model trained on Mini-DDSM, the objective becomes:
 
-$$
+```math
 \mathcal{L}(\theta)
 =
 \mathcal{L}_{\mathrm{VinDr}}(\theta)
 +
 \frac{\lambda}{2}
-\sum_i
-F_i
-(\theta_i - \theta_i^*)^2
-$$
+\sum_i F_i(\theta_i - \theta_i^*)^2
 
 where:
 
