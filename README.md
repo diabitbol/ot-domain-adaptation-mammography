@@ -199,7 +199,8 @@ Starting from the model trained on Mini-DDSM, the objective becomes:
 \mathcal{L}_{\mathrm{VinDr}}(\theta)
 +
 \frac{\lambda}{2}
-\sum_i F_i(\theta_i - \theta_i^*)^2
+\sum_i F_i (\theta_i - \theta_i^*)^2
+```
 
 where:
 
@@ -207,23 +208,23 @@ where:
 - $F_i$ represents the estimated importance of parameter $i$, obtained from the diagonal of the Fisher information matrix;
 - $\lambda$ controls the strength of the constraint.
 
-A large value of `lambda` strongly preserves the source-domain model, while a small value allows more adaptation to VinDr-Mammo.
+A large value of $\lambda$ strongly preserves the source-domain model, while a small value allows more adaptation to VinDr-Mammo.
 
 We tested several values of:
 
-$$
+```math
 \lambda \in [10^2, 10^9]
-$$
+```
 
 with three epochs of adaptation.
 
 ## EWC results
 
-A value around:
+A value around
 
-$$
+```math
 \lambda \approx 5 \times 10^6
-$$
+```
 
 provides an interesting compromise between source-domain retention and target-domain adaptation.
 
